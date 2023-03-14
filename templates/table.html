@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Task Manager</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <script type="text/javascript" src="{{ url_for('static', filename='script.js')}}">
+    function showTasks() {
+      document.getElementById("tasks-view").style.display = "block";
+      document.getElementById("tasks-done-view").style.display = "none";
+    }
+
+    function showTasksDone() {
+      document.getElementById("tasks-view").style.display = "none";
+      document.getElementById("tasks-done-view").style.display = "block";
+    }
+
+  </script>
+</head>
+
+<body>
+
+  <nav>
+    <div class="navbar">
+      <h1><u>Task Manager</u></h1><br>
+      <ul>
+        <li><a class="active" href="#tasks" onclick="showTasks()">Tasks</a></li>
+        <li><a href="#tasks-done" onclick="showTasksDone()">Tasks Done</a></li>
+        <button id="add-task-btn">Add Task</button>
+        <form method="POST" action="{{ url_for('done_task', task_ids='') }}" id="done-form">
+          <button type="submit">Done</button>
+        </form>
+        <form method="POST" action="{{ url_for('delete_task', task_ids='') }}" id="delete-form">
+          <button type="submit">Delete</button>
+        </form>
+        <script>
+          document.getElementById('done-form').addEventListener('submit', function () {
+            var taskIds = '';
+            var checkboxes = document.getElementsByName('task_id');
+            for (var i = 0; i < checkboxes.length; i++) {
+              if (checkboxes[i].checked) {
+                taskIds += checkboxes[i].value + 'a';
+              }
+            }
+            taskIds = taskIds.slice(0, -1);  // remove last a
+            if (taskIds.length != 0) {
+              var url = "{{ url_for('done_task', task_ids='__task_ids__') }}".replace('__task_ids__', taskIds);
+              this.action = url;
+            }
+            else {
+              event.preventDefault();
+            }
+          });
+
+          document.getElementById('delete-form').addEventListener('submit', function () {
+            var taskIds = '';
+            var checkboxes = document.getElementsByName('task_id');
+            for (var i = 0; i < checkboxes.length; i++) {
+              if (checkboxes[i].checked) {
+                taskIds += checkboxes[i].value + 'a';
+              }
+            }
+            taskIds = taskIds.slice(0, -1);  // remove last a
+            if (taskIds.length != 0) {
+              var url = "{{ url_for('delete_task', task_ids='__task_ids__') }}".replace('__task_ids__', taskIds);
+              this.action = url;
+            }
+            else {
+              event.preventDefault();
+            }
+          });
+        </script>
+      </ul>
+    </div>
+  </nav>
+
+  <div id="modal">
+    <div class="add-task">
+      <h2>Add Task</h2>
+      <form id="add_task" action="{{ url_for('add_or_edit_task') }}" method="POST">
+
+        <label for="project">Project:</label>
+        <input type="text" id="project" name="project" required list="projects">
+        <datalist id="projects">
+          {% for project in projects %}
+          <option value="{{ project['name'] }}"></option>
+          {% endfor %}
+        </datalist>
+
+        <label for="project_order">Project Order:</label>
+        <input type="number" id="project_order" name="project_order" required>
+        <script type="text/javascript">
+          // Retrieve the project order based on the selected project name and set it in the project order input
+          var projectDropdown = document.getElementById("project");
+          var projectOrderInput = document.getElementById("project_order");
+          var projects = {{ projects| tojson }};
+          var projectOrder = '';
+
+          projectDropdown.addEventListener("change", function () {
+            console.log("Drop down clicked")
+            var projectName = projectDropdown.value;
+            console.log(projectName)
+
+            // Loop through the projects array to find the matching project name and get its order
+            for (var i = 0; i < projects.length; i++) {
+              if (projects[i]["name"] === projectName) {
+                console.log(projects[i]["name"], "===", projectName, " ", i+1);
+                projectOrder = i+1;
+                break;
+              }
+            }
+
+            console.log("po: ", projectOrder);
+
+            // If project name not found, set the project order to the next consecutive number
+            if (projectOrder === '') {
+              projectOrder = projects.length + 1;
+            }
+
+            // Set the project order in the project order input
+            console.log("po 1: ", projectOrder);
+            projectOrderInput.value = projectOrder;
+          });
+        </script>
+
+        <label for="title">Task Name:</label>
+        <input type="text" id="title" name="title" required><br>
+
+        <label for="task_order">Task Order:</label>
+        <input type="number" id="task_order" name="task_order" required><br>
+        <script type="text/javascript">
+          var titleText = document.getElementById("title");
+          var taskOrderInput = document.getElementById("task_order");
+          var projects = {{ projects| tojson }};
+          var taskOrder = '';
+
+          titleText.addEventListener("input", function () {
+            if (projects[projectOrder] != null) {
+              taskOrder = projects[projectOrder]["tasks"].length + 1;
+            }
+            else {
+              taskOrder = 1;
+            }
+
+            taskOrderInput.value = taskOrder;
+          });
+        </script>
+
+
+        <input type="submit" value="Add Task">
+
+      </form>
+      <button id="close-modal-btn">Close</button>
+      <script>
+        const closeModalBtn = document.getElementById("close-modal-btn");
+        closeModalBtn.addEventListener("click", () => {
+          modal.style.display = "none";
+        });
+      </script>
+      <script type="text/javascript">
+        var addTaskForm = document.getElementById("add_task");
+        addTaskForm.addEventListener("submit", function (event) {
+          for (var i = 0; i < projects[projectOrder]["tasks"].length; i++) {
+            console.log(titleText.value, " ", projects[projectOrder]["tasks"][i][1], " ", i)
+            if (titleText.value === projects[projectOrder]["tasks"][i][1]) {
+              console.log("same!");
+              taskOrderInput.value = i;
+
+              event.preventDefault();
+              alert("Please enter a new task name.");
+              break;
+            }
+          }
+        });
+      </script>
+    </div>
+  </div>
+  <script>
+    const addTaskBtn = document.getElementById("add-task-btn");
+    const modal = document.getElementById("modal");
+    addTaskBtn.addEventListener("click", () => {
+      modal.style.display = "block";
+    });
+  </script>
+
+  <div id="edit-modal" class="modal">
+    <div class="edit-task">
+      <span class="close">&times;</span>
+      <h2>Edit Task</h2>
+      <form id="edit_task" method="POST">
+        <input type="hidden" id="edit_task_id" name="task_id">
+        <label for="edit_project">Project:</label>
+        <input type="text" id="edit_project" name="project" required list="projects">
+        <datalist id="projects">
+          {% for project in projects %}
+          <option value="{{ project['name'] }}"></option>
+          {% endfor %}
+        </datalist>
+
+        <label for="edit_project_order">Project Order:</label>
+        <input type="number" id="edit_project_order" name="project_order" required>
+        <script type="text/javascript">
+          // Retrieve the project order based on the selected project name and set it in the project order input
+          var projectDropdown = document.getElementById("project");
+          var projectOrderInput = document.getElementById("project_order");
+          var projects = {{ projects| tojson }};
+          var projectOrder = '';
+
+          projectDropdown.addEventListener("change", function () {
+            console.log("Drop down clicked")
+            var projectName = projectDropdown.value;
+            console.log(projectName)
+
+            // Loop through the projects array to find the matching project name and get its order
+            for (var i = 0; i < projects.length; i++) {
+              if (projects[i]["name"] === projectName) {
+                console.log(projects[i]["name"], "===", projectName, " ", i);
+                projectOrder = i;
+                break;
+              }
+            }
+
+            // If project name not found, set the project order to the next consecutive number
+            if (projectOrder === '') {
+              projectOrder = projects.length + 1;
+            }
+
+            // Set the project order in the project order input
+            projectOrderInput.value = projectOrder;
+          });
+        </script>
+
+        <label for="edit_title">Task Name:</label>
+        <input type="text" id="edit_title" name="title" required><br>
+
+        <label for="edit_task_order">Task Order:</label>
+        <input type="number" id="edit_task_order" name="task_order" required><br>
+        <script type="text/javascript">
+          var titleText = document.getElementById("title");
+          var taskOrderInput = document.getElementById("task_order");
+          var projects = {{ projects| tojson }};
+          var taskOrder = '';
+
+          titleText.addEventListener("input", function () {
+            if (projects[projectOrder] != null) {
+              taskOrder = projects[projectOrder]["tasks"].length + 1;
+            }
+            else {
+              taskOrder = 1;
+            }
+
+            taskOrderInput.value = taskOrder;
+          });
+        </script>
+
+        <input type="submit" value="Save Changes">
+      </form>
+      <button id="close-modal-btn-2">Close</button>
+      <!-- <script type="text/javascript">
+        var addTaskForm = document.getElementById("add_task");
+        addTaskForm.addEventListener("submit", function (event) {
+          for (var i = 0; i < projects[projectOrder]["tasks"].length; i++) {
+            console.log(titleText.value, " ", projects[projectOrder]["tasks"][i][1], " ", i)
+            if (titleText.value === projects[projectOrder]["tasks"][i][1]) {
+              console.log("same!");
+              taskOrderInput.value = i;
+
+              event.preventDefault();
+              alert("Please enter a new task name.");
+              break;
+            }
+          }
+        });
+      </script> -->
+    </div>
+  </div>
+  <script type="text/javascript">
+    // Get the edit modal
+    var editModal = document.getElementById("edit-modal");
+
+    // Get the <span> element that closes the modal
+    var closeEditModal = document.getElementById("close-modal-btn-2");
+
+    // Select all edit links
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById("taskTable").addEventListener("click", function (event) {
+        if (event.target.classList.contains("edit-link")) {
+          // console.log("Edit link clicked:", event.target.getAttribute("data-task-id"));
+          var taskId = event.target.getAttribute("data-task-id");
+
+          // Make an Ajax request to get the task data from the database
+          var xhr = new XMLHttpRequest();
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+              var task = JSON.parse(xhr.responseText);
+              // Fill in the form fields with the task data
+              document.getElementById("edit_task_id").value = task.id;
+              document.getElementById("edit_title").value = task.title;
+              document.getElementById("edit_task_order").value = task.task_order;
+              document.getElementById("edit_project").value = task.project;
+              document.getElementById("edit_project_order").value = task.project_order;
+
+              console.log(document.getElementById("edit_task_id").value, " ",
+              document.getElementById("edit_title").value = task.title, " ",
+              document.getElementById("edit_task_order").value = task.task_order, " ",
+              document.getElementById("edit_project").value = task.project, " ",
+              document.getElementById("edit_project_order").value = task.project_order)
+            }
+          };
+          xhr.open("POST", "/tasks/" + taskId, true);
+          xhr.send();
+        }
+      });
+    });
+
+    // When the user clicks the close button, close the edit modal
+    closeEditModal.onclick = function () {
+      editModal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+      if (event.target == editModal) {
+        editModal.style.display = "none";
+      }
+    }
+
+    // When the user submits the edit form, make an Ajax request to update the task data in the database
+    var editForm = document.getElementById("edit_task");
+    editForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          // Reload the page to show the updated task list
+          location.reload();
+        }
+      };
+      var formData = new FormData(editForm);
+      var task_id = document.getElementById("edit_task_id").value;
+      console.log(formData);
+      xhr.open("POST", "/edit_task/"+task_id, true);
+      xhr.send(formData);
+    });
+
+  </script>
+
+
+  <div class="content">
+    <div id="tasks-view">
+      {% for project in projects %}
+      <div class="project">
+        <h2>{{ project['name'] }}</h2>
+
+        <table id="taskTable">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in project['tasks'] %}
+            <tr>
+              <!-- <td><input type="checkbox" id="task-{{ task[0] }}"></td> -->
+              <td>
+                <label>
+                  <input type="checkbox" name="task_id" value="{{ task[0] }}">
+                  {{ task[1] }}
+                </label>
+              </td>
+              <td>
+                <a href="{{ url_for('done_task', task_ids=task[0]) }}">Done</a>
+                <a href="#" class="edit-link" data-task-id="{{ task[0] }}"
+                  onclick="document.getElementById('edit-modal').style.display='block'">Edit</a>
+                <a href="{{ url_for('delete_task', task_ids=task[0]) }}">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endfor %}
+
+
+    </div>
+    <div id="tasks-done-view" style="display:none;">
+      <div class="project">
+        <table>
+          <thead>
+            <tr>
+              <th>Task Name</th>
+              <th>Project Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks_done %}
+            <tr>
+              <td>{{ task[1] }}</td>
+              <td>{{ task[3] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
