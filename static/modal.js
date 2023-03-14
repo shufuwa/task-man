@@ -1,12 +1,12 @@
 // Retrieve the project order based on the selected project name and set it in the project order input
-var projectDropdown = document.getElementById("project");
-var projectOrderInput = document.getElementById("project_order");
+var projectDropdownAdd = document.getElementById("project");
+var projectOrderInputAdd = document.getElementById("project_order");
 var projectOrder = '';
 console.log("from modal.js ", projects);
 
-projectDropdown.addEventListener("change", function () {
+projectDropdownAdd.addEventListener("change", function () {
     console.log("Drop down clicked")
-    var projectName = projectDropdown.value;
+    var projectName = projectDropdownAdd.value;
     console.log(projectName)
 
     // Loop through the projects array to find the matching project name and get its order
@@ -27,14 +27,15 @@ projectDropdown.addEventListener("change", function () {
 
     // Set the project order in the project order input
     console.log("po 1: ", projectOrder);
-    projectOrderInput.value = projectOrder;
+    projectOrderInputAdd.value = projectOrder;
+    projectOrder--;
 });
 
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    var titleText = document.getElementById("title");
-    var taskOrderInput = document.getElementById("task_order");
+    var titleText = document.getElementById("title-add-modal");
+    var taskOrderInput = document.getElementById("task_order_add");
     var taskOrder = '';
 
     titleText.addEventListener("input", function () {
