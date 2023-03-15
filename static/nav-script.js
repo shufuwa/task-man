@@ -28,7 +28,7 @@ document.getElementById('done-form').addEventListener('submit', function () {
     }
     taskIds = taskIds.slice(0, -1);  // remove last a
     if (taskIds.length != 0) {
-        var url = "{{ url_for('done_task', task_ids='__task_ids__') }}".replace('__task_ids__', taskIds);
+        url = url_done.replace('__task_ids__', taskIds);
         this.action = url;
     }
     else {
@@ -46,7 +46,7 @@ document.getElementById('delete-form').addEventListener('submit', function () {
     }
     taskIds = taskIds.slice(0, -1);  // remove last a
     if (taskIds.length != 0) {
-        var url = "{{ url_for('delete_task', task_ids='__task_ids__') }}".replace('__task_ids__', taskIds);
+        var url = url_del.replace('__task_ids__', taskIds);
         this.action = url;
     }
     else {

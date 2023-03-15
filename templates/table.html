@@ -3,6 +3,8 @@
 
 <head>
   <title>Task Manager</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
   <script type="text/javascript" src="{{ url_for('static', filename='script.js')}}">
   </script>
@@ -16,13 +18,20 @@
       <ul>
         <li><a class="active" href="#tasks" onclick="showTasks()">Tasks</a></li>
         <li><a href="#tasks-done" onclick="showTasksDone()">Tasks Done</a></li>
-        <button id="add-task-btn">Add Task</button>
+        <button id="add-task-btn"><i class="feather-10" data-feather="plus"></i></button>
         <form method="POST" action="{{ url_for('done_task', task_ids='') }}" id="done-form">
-          <button type="submit" id="batch-done-btn" style="display: none;">Done</button>
+          <button type="submit" id="batch-done-btn" style="display: none;"><i class="feather-10"
+              data-feather="check-square"></i></i></button>
         </form>
         <form method="POST" action="{{ url_for('delete_task', task_ids='') }}" id="delete-form">
-          <button type="submit" id="batch-delete-btn" style="display: none;">Delete</button>
+          <button type="submit" id="batch-delete-btn" style="display: none;"><i class="feather-10"
+              data-feather="trash-2"></i></button>
         </form>
+        <script type="text/javascript">
+          var url_done = "{{ url_for('done_task', task_ids='__task_ids__') }}";;
+          var url_del = "{{ url_for('delete_task', task_ids='__task_ids__') }}";;
+          feather.replace();
+        </script>
         <script type="text/javascript" src="{{ url_for('static', filename='nav-script.js')}}"></script>
       </ul>
     </div>
@@ -53,7 +62,7 @@
         <input type="submit" value="Add Task">
 
       </form>
-      <button id="close-modal-btn">Close</button>
+      <button id="close-modal-btn"><i class="feather-8-done" data-feather="x-square"></i></button>
       <script type="text/javascript">var projects = {{ projects| tojson }};;</script>
       <script type="text/javascript" src="{{ url_for('static', filename='modal.js')}}"></script>
     </div>
@@ -61,7 +70,6 @@
 
   <div id="edit-modal" class="modal">
     <div class="edit-task">
-      <span class="close">&times;</span>
       <h2>Edit Task</h2>
       <form id="edit_task" method="POST">
         <input type="hidden" id="edit_task_id" name="e_task_id">
@@ -84,11 +92,11 @@
 
         <input type="submit" value="Save Changes">
       </form>
-      <button id="close-modal-btn-2">Close</button>
+      <button id="close-modal-btn-2"><i class="feather-8-done" data-feather="x-square"></i></button>
     </div>
   </div>
   <script type="text/javascript">var projects = {{ projects| tojson }};;</script>
-  <script type="text/javascript" src="{{ url_for('static', filename='edit-modal.js')}}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='edit-modal.js')}}" defer></script>
 
 
   <div class="content">
@@ -115,10 +123,13 @@
                 </label>
               </td>
               <td>
-                <a href="{{ url_for('done_task', task_ids=task[0]) }}">Done</a>
-                <a href="#" class="edit-link" data-task-id="{{ task[0] }}"
-                  onclick="document.getElementById('edit-modal').style.display='block'">Edit</a>
-                <a href="{{ url_for('delete_task', task_ids=task[0]) }}">Delete</a>
+                <a href="{{ url_for('done_task', task_ids=task[0]) }}"><i class="feather-8-done"
+                    data-feather="check"></i></a>
+                <a href="#" class="edit-link" onclick="document.getElementById('edit-modal').style.display='block'"><i
+                    class="feather-8-edit" data-feather="edit" data-task-id="{{ task[0] }}"></i></a>
+                <a href="{{ url_for('delete_task', task_ids=task[0]) }}"><i class="feather-8-del"
+                    data-feather="trash-2"></i></a>
+                <script>feather.replace();</script>
               </td>
             </tr>
             {% endfor %}

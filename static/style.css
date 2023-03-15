@@ -263,3 +263,15 @@ input[type="submit"]:hover {
 .navbar h1 {
   width: 200px; /* or any other appropriate width */
 }
+
+.feather-8-done, .feather-8-edit, .feather-8-del {
+  width: 1em;
+  height: 1em;
+  color: black;
+}
+
+.feather-10 {
+  width: 1em;
+  height: 1em;
+  color: white;
+}
