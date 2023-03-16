@@ -3,4 +3,4 @@ backup/
 venv/
 create-db.py
 ideas.txt
-
+tasks.db

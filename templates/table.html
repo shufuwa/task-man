@@ -3,11 +3,9 @@
 
 <head>
   <title>Task Manager</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <script src="https://unpkg.com/feather-icons@4.29.0/dist/feather.min.js"></script>
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-  <script type="text/javascript" src="{{ url_for('static', filename='script.js')}}">
-  </script>
+  <script type="text/javascript" src="{{ url_for('static', filename='script.js')}}"></script>
 </head>
 
 <body>
@@ -20,19 +18,11 @@
         <li><a href="#tasks-done" onclick="showTasksDone()">Tasks Done</a></li>
         <button id="add-task-btn"><i class="feather-10" data-feather="plus"></i></button>
         <form method="POST" action="{{ url_for('done_task', task_ids='') }}" id="done-form">
-          <button type="submit" id="batch-done-btn" style="display: none;"><i class="feather-10"
-              data-feather="check-square"></i></i></button>
+          <button type="submit" id="batch-done-btn" style="display: none;"><i class="feather-10" data-feather="check-square"></i></i></button>
         </form>
         <form method="POST" action="{{ url_for('delete_task', task_ids='') }}" id="delete-form">
-          <button type="submit" id="batch-delete-btn" style="display: none;"><i class="feather-10"
-              data-feather="trash-2"></i></button>
+          <button type="submit" id="batch-delete-btn" style="display: none;"><i class="feather-10" data-feather="trash-2"></i></button>
         </form>
-        <script type="text/javascript">
-          var url_done = "{{ url_for('done_task', task_ids='__task_ids__') }}";;
-          var url_del = "{{ url_for('delete_task', task_ids='__task_ids__') }}";;
-          feather.replace();
-        </script>
-        <script type="text/javascript" src="{{ url_for('static', filename='nav-script.js')}}"></script>
       </ul>
     </div>
   </nav>
@@ -63,8 +53,7 @@
 
       </form>
       <button id="close-modal-btn"><i class="feather-8-done" data-feather="x-square"></i></button>
-      <script type="text/javascript">var projects = {{ projects| tojson }};;</script>
-      <script type="text/javascript" src="{{ url_for('static', filename='modal.js')}}"></script>
+
     </div>
   </div>
 
@@ -95,8 +84,6 @@
       <button id="close-modal-btn-2"><i class="feather-8-done" data-feather="x-square"></i></button>
     </div>
   </div>
-  <script type="text/javascript">var projects = {{ projects| tojson }};;</script>
-  <script type="text/javascript" src="{{ url_for('static', filename='edit-modal.js')}}" defer></script>
 
 
   <div class="content">
@@ -115,7 +102,6 @@
           <tbody>
             {% for task in project['tasks'] %}
             <tr>
-              <!-- <td><input type="checkbox" id="task-{{ task[0] }}"></td> -->
               <td>
                 <label>
                   <input type="checkbox" name="task_id" value="{{ task[0] }}">
@@ -123,13 +109,11 @@
                 </label>
               </td>
               <td>
-                <a href="{{ url_for('done_task', task_ids=task[0]) }}"><i class="feather-8-done"
-                    data-feather="check"></i></a>
-                <a href="#" class="edit-link" onclick="document.getElementById('edit-modal').style.display='block'"><i
-                    class="feather-8-edit" data-feather="edit" data-task-id="{{ task[0] }}"></i></a>
-                <a href="{{ url_for('delete_task', task_ids=task[0]) }}"><i class="feather-8-del"
-                    data-feather="trash-2"></i></a>
-                <script>feather.replace();</script>
+                <a href="{{ url_for('done_task', task_ids=task[0]) }}"><i class="feather-8-done" data-feather="check"></i></a>
+                <a href="#" class="edit-link" onclick="document.getElementById('edit-modal').style.display='block'; fetchTaskData({{ task[0] }})">
+                  <i class="feather-8-edit" data-feather="edit" data-task-id="{{ task[0] }}"></i>
+                </a>
+                <a href="{{ url_for('delete_task', task_ids=task[0]) }}"><i class="feather-8-del" data-feather="trash-2"></i></a>
               </td>
             </tr>
             {% endfor %}
@@ -162,6 +146,15 @@
     </div>
   </div>
 
+  <script type="text/javascript">
+    var url_done = "{{ url_for('done_task', task_ids='__task_ids__') }}";
+    var url_del = "{{ url_for('delete_task', task_ids='__task_ids__') }}";
+  </script>
+  <script type="text/javascript">var projects = {{ projects| tojson }};</script>
+  <script type="text/javascript" src="{{ url_for('static', filename='nav-script.js')}}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='modal.js')}}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='edit-modal.js')}}"></script>
+  <script>feather.replace();</script>
 </body>
 
 </html>
